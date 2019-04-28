@@ -14,7 +14,7 @@ def pipeline(img, s_thresh=(100, 255), sx_thresh=(15, 255)):
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     l_channel = hls[:,:,1]
     s_channel = hls[:,:,2]
-    h_channel = hls[:,:,0]
+    # h_channel = hls[:,:,0] no se usa
     # Sobel x
     sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 1) # Take the derivative in x
     abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from horizontal
@@ -28,7 +28,7 @@ def pipeline(img, s_thresh=(100, 255), sx_thresh=(15, 255)):
     s_binary = np.zeros_like(s_channel)
     s_binary[(s_channel >= s_thresh[0]) & (s_channel <= s_thresh[1])] = 255
     
-    color_binary = np.dstack((np.zeros_like(sxbinary), sxbinary, s_binary)) 
+    # color_binary = np.dstack((np.zeros_like(sxbinary), sxbinary, s_binary)) no se usa 
     
     combined_binary = np.zeros_like(sxbinary)
     combined_binary[(s_binary == 255) | (sxbinary == 255)] = 255
@@ -70,7 +70,7 @@ def get_hist(img):
     hist = np.sum(img[img.shape[0]//2:,:], axis=0)
     return hist
     
-def sliding_window(img, nwindows=9, margin=150, minpix = 1, draw_windows=True):
+def sliding_window(img, nwindows=9, margin=30, minpix = 1, draw_windows=True):
     global left_a, left_b, left_c,right_a, right_b, right_c 
     left_fit_= np.empty(3)
     right_fit_ = np.empty(3)
@@ -181,8 +181,8 @@ def sliding_window(img, nwindows=9, margin=150, minpix = 1, draw_windows=True):
 def get_curve(img, leftx, rightx):
     ploty = np.linspace(0, img.shape[0]-1, img.shape[0])
     y_eval = np.max(ploty)
-    ym_per_pix = 30.5/720 # meters per pixel in y dimension
-    xm_per_pix = 3.7/720 # meters per pixel in x dimension
+    ym_per_pix = 30.5/img.shape[0] # meters per pixel in y dimension
+    xm_per_pix = 3.7/img.shape[0] # meters per pixel in x dimension
 
     # Fit new polynomials to x,y in world space
     left_fit_cr = np.polyfit(ploty*ym_per_pix, leftx*xm_per_pix, 2)
@@ -208,6 +208,6 @@ def draw_lanes(img, left_fit, right_fit):
     points = np.hstack((left, right))
     
     cv2.fillPoly(color_img, np.int_(points), (0,200,100))
-    inv_perspective = inv_perspective_warp(color_img)
+    inv_perspective = inv_perspective_warp(color_img, dst_size=(img.shape[1], img.shape[0]))
     inv_perspective = cv2.addWeighted(img, 1, inv_perspective, 0.3, 0)
     return inv_perspective
