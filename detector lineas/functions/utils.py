@@ -207,7 +207,7 @@ def draw_lanes(img, left_fit, right_fit):
     right = np.array([np.flipud(np.transpose(np.vstack([right_fit, ploty])))])
     points = np.hstack((left, right))
     
-    cv2.fillPoly(color_img, np.int_(points), (0,200,255))
+    cv2.fillPoly(color_img, np.int_(points), (0,200,100))
     inv_perspective = inv_perspective_warp(color_img)
-    inv_perspective = cv2.addWeighted(img, 1, inv_perspective, 0.7, 0)
+    inv_perspective = cv2.addWeighted(img, 1, inv_perspective, 0.3, 0)
     return inv_perspective
