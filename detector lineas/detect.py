@@ -29,7 +29,7 @@ camara = "project_video.mp4"
 cap = cv2.VideoCapture(camara)
 
 #lectura de mensaje
-def callback_number(msg):
+def image_callback(msg):
     cv2_img = CvBridge().imgmsg_to_cv2(msg, "bgr8")
 
 image_topic = "/videofile/image_raw"
