@@ -8,13 +8,15 @@ right_a, right_b, right_c = [],[],[]
 
     
 def pipeline(img, s_thresh=(100, 255), sx_thresh=(15, 255)):
-    #img = undistort(img)
+    #img = undistort(img) #eliminar distorción camara
     img = np.copy(img)
+
     # Convert to HLS color space and separate the V channel
     hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS).astype(np.float)
     l_channel = hls[:,:,1]
     s_channel = hls[:,:,2]
     # h_channel = hls[:,:,0] no se usa
+    
     # Sobel x
     sobelx = cv2.Sobel(l_channel, cv2.CV_64F, 1, 1) # Take the derivative in x
     abs_sobelx = np.absolute(sobelx) # Absolute x derivative to accentuate lines away from horizontal
@@ -32,6 +34,7 @@ def pipeline(img, s_thresh=(100, 255), sx_thresh=(15, 255)):
     
     combined_binary = np.zeros_like(sxbinary)
     combined_binary[(s_binary == 255) | (sxbinary == 255)] = 255
+
     return combined_binary
 
 def perspective_warp(img, 
@@ -39,7 +42,9 @@ def perspective_warp(img,
                      src=np.float32([(0.43,0.65),(0.58,0.65),(0.1,1),(1,1)]),
                      dst=np.float32([(0,0), (1, 0), (0,1), (1,1)])):
     img_size = np.float32([(img.shape[1],img.shape[0])])
+    
     src = src* img_size
+
     # For destination points, I'm arbitrarily choosing some points to be
     # a nice fit for displaying our warped result 
     # again, not exact, but close enough for our purposes
@@ -70,7 +75,7 @@ def get_hist(img):
     hist = np.sum(img[img.shape[0]//2:,:], axis=0)
     return hist
     
-def sliding_window(img, nwindows=9, margin=30, minpix = 1, draw_windows=True):
+def sliding_window(img, nwindows=15, margin=30, minpix = 1, draw_windows=True):
     global left_a, left_b, left_c,right_a, right_b, right_c 
     left_fit_= np.empty(3)
     right_fit_ = np.empty(3)
